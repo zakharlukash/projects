@@ -1,0 +1,193 @@
+﻿Target Type,Year,Quarter,Target,Year Quarter,Shipping Plant,Unit
+Quarterly,2024,Qtr 1,0.88,2024Qtr 1,Berlin,Parcels
+Quarterly,2024,Qtr 1,0.87,2024Qtr 1,Berlin,Weight
+Quarterly,2024,Qtr 1,0.89,2024Qtr 1,Berlin,Volume
+Quarterly,2024,Qtr 1,5,2024Qtr 1,Berlin,Staging Time
+Quarterly,2024,Qtr 1,0.87,2024Qtr 1,Amsterdam,Parcels
+Quarterly,2024,Qtr 1,0.84,2024Qtr 1,Amsterdam,Weight
+Quarterly,2024,Qtr 1,0.85,2024Qtr 1,Amsterdam,Volume
+Quarterly,2024,Qtr 1,5,2024Qtr 1,Amsterdam,Staging Time
+Quarterly,2024,Qtr 1,0.89,2024Qtr 1,London,Parcels
+Quarterly,2024,Qtr 1,0.8,2024Qtr 1,London,Weight
+Quarterly,2024,Qtr 1,0.9,2024Qtr 1,London,Volume
+Quarterly,2024,Qtr 1,5,2024Qtr 1,London,Staging Time
+Quarterly,2024,Qtr 1,0.8,2024Qtr 1,Paris,Parcels
+Quarterly,2024,Qtr 1,0.84,2024Qtr 1,Paris,Weight
+Quarterly,2024,Qtr 1,0.83,2024Qtr 1,Paris,Volume
+Quarterly,2024,Qtr 1,5,2024Qtr 1,Paris,Staging Time
+Quarterly,2024,Qtr 1,0.85,2024Qtr 1,Vienna,Parcels
+Quarterly,2024,Qtr 1,0.87,2024Qtr 1,Vienna,Weight
+Quarterly,2024,Qtr 1,0.8,2024Qtr 1,Vienna,Volume
+Quarterly,2024,Qtr 1,5,2024Qtr 1,Vienna,Staging Time
+Quarterly,2024,Qtr 1,0.84,2024Qtr 1,Prague,Parcels
+Quarterly,2024,Qtr 1,0.86,2024Qtr 1,Prague,Weight
+Quarterly,2024,Qtr 1,0.89,2024Qtr 1,Prague,Volume
+Quarterly,2024,Qtr 1,5,2024Qtr 1,Prague,Staging Time
+Quarterly,2024,Qtr 2,0.88,2024Qtr 2,Berlin,Parcels
+Quarterly,2024,Qtr 2,0.85,2024Qtr 2,Berlin,Weight
+Quarterly,2024,Qtr 2,0.86,2024Qtr 2,Berlin,Volume
+Quarterly,2024,Qtr 2,5,2024Qtr 2,Berlin,Staging Time
+Quarterly,2024,Qtr 2,0.8,2024Qtr 2,Amsterdam,Parcels
+Quarterly,2024,Qtr 2,0.84,2024Qtr 2,Amsterdam,Weight
+Quarterly,2024,Qtr 2,0.86,2024Qtr 2,Amsterdam,Volume
+Quarterly,2024,Qtr 2,5,2024Qtr 2,Amsterdam,Staging Time
+Quarterly,2024,Qtr 2,0.86,2024Qtr 2,London,Parcels
+Quarterly,2024,Qtr 2,0.85,2024Qtr 2,London,Weight
+Quarterly,2024,Qtr 2,0.89,2024Qtr 2,London,Volume
+Quarterly,2024,Qtr 2,5,2024Qtr 2,London,Staging Time
+Quarterly,2024,Qtr 2,0.85,2024Qtr 2,Paris,Parcels
+Quarterly,2024,Qtr 2,0.88,2024Qtr 2,Paris,Weight
+Quarterly,2024,Qtr 2,0.83,2024Qtr 2,Paris,Volume
+Quarterly,2024,Qtr 2,5,2024Qtr 2,Paris,Staging Time
+Quarterly,2024,Qtr 2,0.86,2024Qtr 2,Vienna,Parcels
+Quarterly,2024,Qtr 2,0.9,2024Qtr 2,Vienna,Weight
+Quarterly,2024,Qtr 2,0.85,2024Qtr 2,Vienna,Volume
+Quarterly,2024,Qtr 2,5,2024Qtr 2,Vienna,Staging Time
+Quarterly,2024,Qtr 2,0.82,2024Qtr 2,Prague,Parcels
+Quarterly,2024,Qtr 2,0.9,2024Qtr 2,Prague,Weight
+Quarterly,2024,Qtr 2,0.81,2024Qtr 2,Prague,Volume
+Quarterly,2024,Qtr 2,5,2024Qtr 2,Prague,Staging Time
+Quarterly,2024,Qtr 3,0.89,2024Qtr 3,Berlin,Parcels
+Quarterly,2024,Qtr 3,0.9,2024Qtr 3,Berlin,Weight
+Quarterly,2024,Qtr 3,0.84,2024Qtr 3,Berlin,Volume
+Quarterly,2024,Qtr 3,5,2024Qtr 3,Berlin,Staging Time
+Quarterly,2024,Qtr 3,0.88,2024Qtr 3,Amsterdam,Parcels
+Quarterly,2024,Qtr 3,0.8,2024Qtr 3,Amsterdam,Weight
+Quarterly,2024,Qtr 3,0.8,2024Qtr 3,Amsterdam,Volume
+Quarterly,2024,Qtr 3,5,2024Qtr 3,Amsterdam,Staging Time
+Quarterly,2024,Qtr 3,0.81,2024Qtr 3,London,Parcels
+Quarterly,2024,Qtr 3,0.83,2024Qtr 3,London,Weight
+Quarterly,2024,Qtr 3,0.85,2024Qtr 3,London,Volume
+Quarterly,2024,Qtr 3,5,2024Qtr 3,London,Staging Time
+Quarterly,2024,Qtr 3,0.8,2024Qtr 3,Paris,Parcels
+Quarterly,2024,Qtr 3,0.87,2024Qtr 3,Paris,Weight
+Quarterly,2024,Qtr 3,0.89,2024Qtr 3,Paris,Volume
+Quarterly,2024,Qtr 3,5,2024Qtr 3,Paris,Staging Time
+Quarterly,2024,Qtr 3,0.8,2024Qtr 3,Vienna,Parcels
+Quarterly,2024,Qtr 3,0.9,2024Qtr 3,Vienna,Weight
+Quarterly,2024,Qtr 3,0.83,2024Qtr 3,Vienna,Volume
+Quarterly,2024,Qtr 3,5,2024Qtr 3,Vienna,Staging Time
+Quarterly,2024,Qtr 3,0.85,2024Qtr 3,Prague,Parcels
+Quarterly,2024,Qtr 3,0.86,2024Qtr 3,Prague,Weight
+Quarterly,2024,Qtr 3,0.87,2024Qtr 3,Prague,Volume
+Quarterly,2024,Qtr 3,5,2024Qtr 3,Prague,Staging Time
+Quarterly,2024,Qtr 4,0.88,2024Qtr 4,Berlin,Parcels
+Quarterly,2024,Qtr 4,0.85,2024Qtr 4,Berlin,Weight
+Quarterly,2024,Qtr 4,0.89,2024Qtr 4,Berlin,Volume
+Quarterly,2024,Qtr 4,5,2024Qtr 4,Berlin,Staging Time
+Quarterly,2024,Qtr 4,0.87,2024Qtr 4,Amsterdam,Parcels
+Quarterly,2024,Qtr 4,0.82,2024Qtr 4,Amsterdam,Weight
+Quarterly,2024,Qtr 4,0.87,2024Qtr 4,Amsterdam,Volume
+Quarterly,2024,Qtr 4,5,2024Qtr 4,Amsterdam,Staging Time
+Quarterly,2024,Qtr 4,0.81,2024Qtr 4,London,Parcels
+Quarterly,2024,Qtr 4,0.82,2024Qtr 4,London,Weight
+Quarterly,2024,Qtr 4,0.9,2024Qtr 4,London,Volume
+Quarterly,2024,Qtr 4,5,2024Qtr 4,London,Staging Time
+Quarterly,2024,Qtr 4,0.87,2024Qtr 4,Paris,Parcels
+Quarterly,2024,Qtr 4,0.86,2024Qtr 4,Paris,Weight
+Quarterly,2024,Qtr 4,0.81,2024Qtr 4,Paris,Volume
+Quarterly,2024,Qtr 4,5,2024Qtr 4,Paris,Staging Time
+Quarterly,2024,Qtr 4,0.83,2024Qtr 4,Vienna,Parcels
+Quarterly,2024,Qtr 4,0.82,2024Qtr 4,Vienna,Weight
+Quarterly,2024,Qtr 4,0.85,2024Qtr 4,Vienna,Volume
+Quarterly,2024,Qtr 4,5,2024Qtr 4,Vienna,Staging Time
+Quarterly,2024,Qtr 4,0.88,2024Qtr 4,Prague,Parcels
+Quarterly,2024,Qtr 4,0.8,2024Qtr 4,Prague,Weight
+Quarterly,2024,Qtr 4,0.8,2024Qtr 4,Prague,Volume
+Quarterly,2024,Qtr 4,5,2024Qtr 4,Prague,Staging Time
+Quarterly,2025,Qtr 1,0.81,2025Qtr 1,Berlin,Parcels
+Quarterly,2025,Qtr 1,0.81,2025Qtr 1,Berlin,Weight
+Quarterly,2025,Qtr 1,0.85,2025Qtr 1,Berlin,Volume
+Quarterly,2025,Qtr 1,5,2025Qtr 1,Berlin,Staging Time
+Quarterly,2025,Qtr 1,0.86,2025Qtr 1,Amsterdam,Parcels
+Quarterly,2025,Qtr 1,0.82,2025Qtr 1,Amsterdam,Weight
+Quarterly,2025,Qtr 1,0.84,2025Qtr 1,Amsterdam,Volume
+Quarterly,2025,Qtr 1,5,2025Qtr 1,Amsterdam,Staging Time
+Quarterly,2025,Qtr 1,0.88,2025Qtr 1,London,Parcels
+Quarterly,2025,Qtr 1,0.89,2025Qtr 1,London,Weight
+Quarterly,2025,Qtr 1,0.8,2025Qtr 1,London,Volume
+Quarterly,2025,Qtr 1,5,2025Qtr 1,London,Staging Time
+Quarterly,2025,Qtr 1,0.88,2025Qtr 1,Paris,Parcels
+Quarterly,2025,Qtr 1,0.88,2025Qtr 1,Paris,Weight
+Quarterly,2025,Qtr 1,0.8,2025Qtr 1,Paris,Volume
+Quarterly,2025,Qtr 1,5,2025Qtr 1,Paris,Staging Time
+Quarterly,2025,Qtr 1,0.84,2025Qtr 1,Vienna,Parcels
+Quarterly,2025,Qtr 1,0.89,2025Qtr 1,Vienna,Weight
+Quarterly,2025,Qtr 1,0.86,2025Qtr 1,Vienna,Volume
+Quarterly,2025,Qtr 1,5,2025Qtr 1,Vienna,Staging Time
+Quarterly,2025,Qtr 1,0.89,2025Qtr 1,Prague,Parcels
+Quarterly,2025,Qtr 1,0.89,2025Qtr 1,Prague,Weight
+Quarterly,2025,Qtr 1,0.89,2025Qtr 1,Prague,Volume
+Quarterly,2025,Qtr 1,5,2025Qtr 1,Prague,Staging Time
+Quarterly,2025,Qtr 2,0.87,2025Qtr 2,Berlin,Parcels
+Quarterly,2025,Qtr 2,0.88,2025Qtr 2,Berlin,Weight
+Quarterly,2025,Qtr 2,0.83,2025Qtr 2,Berlin,Volume
+Quarterly,2025,Qtr 2,5,2025Qtr 2,Berlin,Staging Time
+Quarterly,2025,Qtr 2,0.81,2025Qtr 2,Amsterdam,Parcels
+Quarterly,2025,Qtr 2,0.84,2025Qtr 2,Amsterdam,Weight
+Quarterly,2025,Qtr 2,0.84,2025Qtr 2,Amsterdam,Volume
+Quarterly,2025,Qtr 2,5,2025Qtr 2,Amsterdam,Staging Time
+Quarterly,2025,Qtr 2,0.86,2025Qtr 2,London,Parcels
+Quarterly,2025,Qtr 2,0.85,2025Qtr 2,London,Weight
+Quarterly,2025,Qtr 2,0.87,2025Qtr 2,London,Volume
+Quarterly,2025,Qtr 2,5,2025Qtr 2,London,Staging Time
+Quarterly,2025,Qtr 2,0.86,2025Qtr 2,Paris,Parcels
+Quarterly,2025,Qtr 2,0.82,2025Qtr 2,Paris,Weight
+Quarterly,2025,Qtr 2,0.83,2025Qtr 2,Paris,Volume
+Quarterly,2025,Qtr 2,5,2025Qtr 2,Paris,Staging Time
+Quarterly,2025,Qtr 2,0.83,2025Qtr 2,Vienna,Parcels
+Quarterly,2025,Qtr 2,0.83,2025Qtr 2,Vienna,Weight
+Quarterly,2025,Qtr 2,0.86,2025Qtr 2,Vienna,Volume
+Quarterly,2025,Qtr 2,5,2025Qtr 2,Vienna,Staging Time
+Quarterly,2025,Qtr 2,0.95,2025Qtr 2,Prague,Parcels
+Quarterly,2025,Qtr 2,0.95,2025Qtr 2,Prague,Weight
+Quarterly,2025,Qtr 2,0.95,2025Qtr 2,Prague,Volume
+Quarterly,2025,Qtr 2,5,2025Qtr 2,Prague,Staging Time
+Yearly,2024,,0.87,,Berlin,Parcels
+Yearly,2024,,0.88,,Berlin,Weight
+Yearly,2024,,0.9,,Berlin,Volume
+Yearly,2024,,5,,Berlin,Staging Time
+Yearly,2024,,0.81,,Amsterdam,Parcels
+Yearly,2024,,0.84,,Amsterdam,Weight
+Yearly,2024,,0.84,,Amsterdam,Volume
+Yearly,2024,,5,,Amsterdam,Staging Time
+Yearly,2024,,0.86,,London,Parcels
+Yearly,2024,,0.85,,London,Weight
+Yearly,2024,,0.87,,London,Volume
+Yearly,2024,,5,,London,Staging Time
+Yearly,2024,,0.86,,Paris,Parcels
+Yearly,2024,,0.82,,Paris,Weight
+Yearly,2024,,0.83,,Paris,Volume
+Yearly,2024,,5,,Paris,Staging Time
+Yearly,2024,,0.83,,Vienna,Parcels
+Yearly,2024,,0.83,,Vienna,Weight
+Yearly,2024,,0.86,,Vienna,Volume
+Yearly,2024,,5,,Vienna,Staging Time
+Yearly,2024,,0.85,,Prague,Parcels
+Yearly,2024,,0.85,,Prague,Weight
+Yearly,2024,,0.85,,Prague,Volume
+Yearly,2024,,5,,Prague,Staging Time
+Yearly,2025,,0.85,,Berlin,Parcels
+Yearly,2025,,0.86,,Berlin,Weight
+Yearly,2025,,0.87,,Berlin,Volume
+Yearly,2025,,5,,Berlin,Staging Time
+Yearly,2025,,0.88,,Amsterdam,Parcels
+Yearly,2025,,0.85,,Amsterdam,Weight
+Yearly,2025,,0.89,,Amsterdam,Volume
+Yearly,2025,,5,,Amsterdam,Staging Time
+Yearly,2025,,0.87,,London,Parcels
+Yearly,2025,,0.82,,London,Weight
+Yearly,2025,,0.87,,London,Volume
+Yearly,2025,,5,,London,Staging Time
+Yearly,2025,,0.81,,Paris,Parcels
+Yearly,2025,,0.82,,Paris,Weight
+Yearly,2025,,0.9,,Paris,Volume
+Yearly,2025,,5,,Paris,Staging Time
+Yearly,2025,,0.87,,Vienna,Parcels
+Yearly,2025,,0.86,,Vienna,Weight
+Yearly,2025,,0.81,,Vienna,Volume
+Yearly,2025,,5,,Vienna,Staging Time
+Yearly,2025,,0.84,,Prague,Parcels
+Yearly,2025,,0.9,,Prague,Weight
+Yearly,2025,,0.9,,Prague,Volume
+Yearly,2025,,5,,Prague,Staging Time
