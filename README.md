@@ -1,1 +1,1 @@
-PowerBI Prijects
+PowerBI Projects
