@@ -1,0 +1,38 @@
+<svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for the animated stroke -->
+    <linearGradient id="flareGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F426CE"/>
+      <stop offset="50%" stop-color="#3901BC"/>
+      <stop offset="100%" stop-color="#da25ad"/>
+    </linearGradient>
+
+    <!-- Outer pill path for white base -->
+    <path id="pillPathOuter" d="M20,0 H100 A20,20 0 0 1 120,20 A20,20 0 0 1 100,40 H20 A20,20 0 0 1 0,20 A20,20 0 0 1 20,0 Z"/>
+
+    <!-- Inset pill path (2px inward all around) for stroke -->
+    <path id="pillPathInset" d="M22,2 H98 A18,18 0 0 1 118,20 A18,18 0 0 1 98,38 H22 A18,18 0 0 1 2,20 A18,18 0 0 1 22,2 Z"/>
+  </defs>
+
+  <!-- Base pill (fills the frame) -->
+  <use href="#pillPathOuter" fill="white" />
+
+  <!-- Animated inset stroke inside the shape -->
+  <path
+    d="M22,2 H98 A18,18 0 0 1 118,20 A18,18 0 0 1 98,38 H22 A18,18 0 0 1 2,20 A18,18 0 0 1 22,2 Z"
+    fill="none"
+    stroke="url(#flareGradient)"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-dasharray="40 380"
+    stroke-dashoffset="420">
+    <animate
+      attributeName="stroke-dashoffset"
+      from="420"
+      to="0"
+      dur="3s"
+      repeatCount="indefinite"
+      calcMode="spline"
+      keySplines="0.42 0 0.58 1" />
+  </path>
+</svg>

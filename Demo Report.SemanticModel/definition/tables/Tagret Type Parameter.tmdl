@@ -1,0 +1,37 @@
+table 'Tagret Type Parameter'
+	lineageTag: ed3a6dee-e643-4ce0-9f58-fc4a172b9700
+
+	column 'Target Type Name'
+		lineageTag: 33b045fa-0493-444e-a6e8-e30804f3e6e9
+		summarizeBy: none
+		sourceColumn: [Value1]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Target Type Code'
+		lineageTag: 1b8a8d1e-1e4b-421d-bfaf-5024ea13eb6a
+		summarizeBy: none
+		sourceColumn: [Value2]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sort Order'
+		formatString: 0
+		lineageTag: e9b0558d-e8ce-419c-838f-01376d408468
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Tagret Type Parameter' = calculated
+		mode: import
+		source = ```
+				
+				    {
+				        ("Previous Year Actuals","LY", 0), 
+				        ("Manually Set Targets", "Manual", 1)
+				    }
+				```
+
+	annotation PBI_Id = fffd6167684a4a46aed420f5b37f734f
+

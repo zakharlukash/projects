@@ -1,0 +1,30 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-AS
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["Dim Calendar","Fact Table","Dim KPIs","Fact Comments"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.144.1378.0 (25.06)+cba1e61f16ea36d44901f06fa446299040122394
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","CalcGroup","TMDLView_Desktop"]
+
+annotation __TEdtr = 1
+
+ref table 'Tagret Type Parameter'
+ref table 'Dim Calendar'
+ref table Calculations
+ref table 'Fact Table'
+ref table 'Bridge Shipping Plant'
+ref table 'Dim KPIs'
+ref table 'Dim KPIs based on Last Year'
+ref table 'Fact Comments'
+
+ref cultureInfo en-US
+

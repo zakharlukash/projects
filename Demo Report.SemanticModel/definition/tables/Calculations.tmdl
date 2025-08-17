@@ -1,0 +1,1455 @@
+table Calculations
+	lineageTag: d22bee43-5bd6-413d-ae49-af29288da941
+
+	measure 'AU %' = ```
+			
+			
+			VAR SelectedKPI = SELECTEDVALUE('Fact Table'[KPI])
+			VAR Result = 
+			    DIVIDE(
+			        SUMX('Fact Table', MIN('Fact Table'[Actuals Value],  'Fact Table'[Target Value])
+			        ),
+			        CALCULATE(SUM('Fact Table'[Target Value])
+			        )
+			    )
+			
+			RETURN
+			    IF(
+			        ISBLANK(Result),
+			        "No Data",
+			        Result
+			    )
+			    // SWITCH(
+			    //     TRUE,
+			    //     SelectedKPI = "Pallets",Result,
+			    //     SelectedKPI = "Volume", Result,
+			    //     SelectedKPI = "Weight", Result,
+			    //     Result = BLANK(), "No Data",
+			    //     Result
+			    // ))
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: 8ecd1844-72ef-4cf2-ad83-33731b64c1df
+
+	measure 'AU % PY' = ```
+			
+			VAR SelectedKPI = SELECTEDVALUE('Fact Table'[KPI])
+			
+			VAR SelectedFiscalMonths = VALUES('Dim Calendar'[Month Short Name])
+			
+			VAR SelectedFiscalYears = VALUES('Dim Calendar'[Year])
+			
+			VAR LastFiscalYear = MINX(SelectedFiscalYears, [Year]) -1
+			
+			VAR DatesLastYear =
+			    CALCULATETABLE(
+			        VALUES('Dim Calendar'[Calendar Date]),
+			        'Dim Calendar'[Month Short Name] IN SelectedFiscalMonths,
+			        'Dim Calendar'[Year] = LastFiscalYear
+			    )
+			
+			VAR Result =
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX('Fact Table', MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        'Dim Calendar'[Calendar Date] IN DatesLastYear
+			    ) 
+			
+			
+			RETURN
+			    IF(
+			        Result = BLANK(),
+			        "N/A",
+			        SWITCH(
+			            TRUE,
+			            SelectedKPI = "Pallets", Result,
+			            SelectedKPI = "Volume", Result,
+			            SelectedKPI = "Weight", Result
+			        )
+			    )
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: fb0c2451-2d4c-4824-840b-c725999df204
+
+	measure 'AU Selected Period - PY' = ```
+			
+			VAR CurrentFiscalYear =     
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]), 
+			        YEAR('Dim Calendar'[Calendar Date]) = YEAR(today())
+			    )
+			
+			VAR AU = 
+			    IF(
+			        [AU %] = "No Data",
+			        "No Data",
+			        [AU %]
+			    )
+			
+			VAR AU_PY = 
+			    IF(
+			        [AU % PY] = "N/A",
+			        "No Data",
+			        [AU % PY]
+			    )
+			    
+			VAR Result = 
+			    IF(
+			        OR(
+			            AU_PY = "No Data",
+			            AU = "No Data"
+			        ),
+			        "No Data",
+			        AU - AU_PY
+			    )
+			
+			RETURN
+			    // IF(
+			    //     SELECTEDVALUE('Dim Calendar'[Year]) = CurrentFiscalYear, 
+			    //     Result, 
+			    //     "No Data"
+			    // )
+			
+			
+			    SWITCH(
+			        TRUE(),
+			        SELECTEDVALUE('Dim Calendar'[Year]) = CurrentFiscalYear, Result,
+			        SELECTEDVALUE('Dim Calendar'[Year]) = BLANK(), "N/A",
+			        //SELECTEDVALUE('Dim Calendar'[Year]) < CurrentFiscalYear, "No Data",
+			        Result
+			    )        
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: 06d4720f-7bea-4163-ad0c-4df528cca20a
+
+	measure 'AU % PY YTD column chart' = ```
+			
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			VAR SelectedFiscalYear = SELECTEDVALUE('Dim Calendar'[Year])
+			VAR SelectedFiscalMonth = SELECTEDVALUE('Dim Calendar'[Month Number])
+			
+			VAR CurrentFiscalYear = 
+			    //MAXX(ALL('Dim Calendar'), 'Dim Calendar'[Year Nbr])
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalMonth = 
+			    // MAXX(
+			    //     FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Year Nbr] = CurrentFiscalYear),
+			    //     'Dim Calendar'[Month Number]
+			    // )
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        'Dim Calendar'[Year] = CurrentFiscalYear &&
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR IsInCurrentFiscalYTD =
+			    SelectedFiscalYear = CurrentFiscalYear &&
+			    SelectedFiscalMonth <= CurrentFiscalMonth
+			
+			VAR MatchingMonthLastYear =
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX(
+			                'Fact Table',
+			                MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])
+			            ),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        FILTER(
+			            ALL('Dim Calendar'),
+			            'Dim Calendar'[Year] = CurrentFiscalYear - 1 &&
+			            'Dim Calendar'[Month Number] = SelectedFiscalMonth
+			        )
+			    )
+			
+			RETURN
+			    IF(
+			        IsInCurrentFiscalYTD && TargetMode = "LY", 
+			        MatchingMonthLastYear, 
+			        BLANK()
+			    )
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: 95d34501-0d95-4c8f-af79-d9dcea762f9c
+
+	measure 'Shipments Count' = DISTINCTCOUNT('Fact Table'[Index]) //Fact table in its finished form is pivoted. The original table's form is 1 row = 1 shipment. To calculate number of shipments means to add an index to original table and the distinct count
+		formatString: #,0
+		displayFolder: Other
+		lineageTag: f7fb6142-088e-425c-9556-841ef75052dc
+
+	measure 'Actuals Pallets only' = ```
+			
+			
+			VAR SelectedKPI = SELECTEDVALUE('Fact Table'[KPI])
+			
+			VAR AU = [AU %]
+			
+			VAR Result = 
+			    CALCULATE(
+			        SUM('Fact Table'[Actuals Value])
+			    )
+			    
+			RETURN
+			    SWITCH(
+			        TRUE,
+			        SelectedKPI = "Pallets" && AU = "No Data", "No Data",
+			        SelectedKPI = "Pallets",Result,
+			        BLANK()
+			    )
+			```
+		formatString: #,0
+		displayFolder: Other
+		lineageTag: edb03ad6-0ea2-4394-9f4d-9e58d32d0ec1
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Actuals per Unit' = ```
+			
+			
+			//this calculates absolute number of shipped pallets/volume/weight to display in the column chart
+			
+			VAR SelectedKPI = SELECTEDVALUE('Fact Table'[KPI])
+			VAR Result = 
+			    SUMX('Fact Table', 'Fact Table'[Actuals Value]) 
+			    
+			RETURN
+			    SWITCH(
+			        TRUE,
+			        SelectedKPI = "Parcels",Result,
+			        SelectedKPI = "Weight",Result,
+			        SelectedKPI = "Volume", Result,
+			        BLANK()
+			    )
+			```
+		formatString: #,0
+		displayFolder: Other
+		lineageTag: 3c76c52a-855b-4777-a3d8-04c2bb609099
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'AU % vs Target' = ```
+			
+			
+			VAR Target =
+			    IF(
+			        [AU Target % Dynamic] = "N/A" || [AU Target % Dynamic] = "No Data" || ISBLANK([AU Target % Dynamic]),
+			        "N/A",
+			        [AU Target % Dynamic]
+			    )
+			
+			VAR Result = (Target - [AU %]) * -1
+			RETURN 
+			    IF(Target = "N/A" || Target = "No Data", "N/A", Result)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: 2596990c-30e3-40f0-ab02-e2b18195c767
+
+	measure 'Message Target AU Filtered Table' = ```
+			
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			VAR ResultQuartelyTarget = 
+			    IF(
+			        TargetMode = "LY",
+			        "Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗟𝗮𝘀𝘁 𝗬𝗲𝗮𝗿 performance.",
+			        "Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀."
+			    )
+			
+			VAR ResultYearlyTarget = 
+			    IF(
+			        TargetMode = "LY",
+			        "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗟𝗮𝘀𝘁 𝗬𝗲𝗮𝗿 performance.",
+			        "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀."
+			    )
+			
+			VAR IsYearFiltered = ISFILTERED('Dim Calendar'[Year])
+			VAR IsQuarterFiltered = ISFILTERED('Dim Calendar'[Quarter])
+			VAR IsMonthFiltered = ISFILTERED('Dim Calendar'[Month Short Name])
+			VAR IsWeekFiltered = ISFILTERED('Dim Calendar'[Week Number])
+			
+			VAR NumSelectedYears = DISTINCTCOUNT('Dim Calendar'[Year])
+			VAR NumSelectedQuarters = DISTINCTCOUNT('Dim Calendar'[Quarter])
+			VAR NumSelectedMonths = DISTINCTCOUNT('Dim Calendar'[Month Short Name])
+			VAR NumSelectedWeeks = DISTINCTCOUNT('Dim Calendar'[Week Number])
+			VAR NumSelectedShippingPlants = DISTINCTCOUNT('Bridge Shipping Plant'[City])
+			
+			RETURN
+			    IF(
+			        TargetMode = "LY",
+			        "",
+			        SWITCH(
+			            TRUE(),
+			            TargetMode = "Manual" && NumSelectedShippingPlants > 1, "❗Multiple Shipping Plants are filtered, please select only one plant to see targets.",
+			            
+			
+			        
+			
+			SWITCH(
+			    TRUE(),
+			    //If target mode selector is Last Year then just show nothing
+			    TargetMode = "LY", 
+			        "",
+			
+			    // If more than one shipping plant is selected, return a message
+			    TargetMode = "Manual" && NumSelectedShippingPlants > 1, 
+			        "❗Multiple Shipping Plants are filtered, please select only one plant to see targets.",
+			
+			
+			    // If more than one year is selected, return "N/A"
+			    TargetMode = "Manual", //NumSelectedYears > 1, 
+			        //"❗More than one year is filtered, to see targets please make sure no more than one year at once is filtered.",
+			        "",
+			    
+			
+			    // If both quarterly and yearly results are blank, return "N/A"
+			    ISBLANK(ResultYearlyTarget) && ISBLANK(ResultQuartelyTarget), 
+			        "N/A",
+			    
+			
+			
+			    // If only the Year is filtered
+			    IsYearFiltered && NOT IsQuarterFiltered && NOT IsMonthFiltered && NOT IsWeekFiltered, 
+			        ResultYearlyTarget,
+			
+			    // If only the Fiscal Quarter is filtered and only one quarter is selected
+			    IsQuarterFiltered && NumSelectedQuarters = 1 && NOT IsMonthFiltered, 
+			        ResultQuartelyTarget,
+			
+			    // If a single month is filtered
+			    IsMonthFiltered && NumSelectedMonths = 1, 
+			        ResultQuartelyTarget,
+			
+			    // If weeks are filtered
+			    IsWeekFiltered &&
+			    (
+			        (NumSelectedWeeks > 0) && 
+			        (NumSelectedMonths <= 1 && NumSelectedQuarters <= 1) || 
+			        (NumSelectedMonths > 1 && NumSelectedQuarters = 1) 
+			    ),
+			        ResultQuartelyTarget,
+			
+			    // If more than one quarter or month is filtered, return the yearly target
+			    (IsQuarterFiltered && NumSelectedQuarters > 1) || (IsMonthFiltered && NumSelectedMonths > 1), 
+			        ResultYearlyTarget,
+			
+			    "N/A"
+			)))
+			```
+		displayFolder: Messages & Callout Values
+		lineageTag: 510f2040-3dd7-465f-af7a-9cc12203c311
+
+	measure 'AU Target % Dynamic' = ```
+			
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			VAR Unit = SELECTEDVALUE('Fact Table'[KPI])
+			
+			// VAR CurrentFiscalYear = 
+			
+			// MAX('Dim Calendar'[Year Nbr])
+			
+			VAR CurrentFiscalYear = 
+			    //MAX('Dim Calendar'[Year Nbr])
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			VAR FiscalYearQuarter = SELECTEDVALUE('Dim Calendar'[Quarter])
+			
+			VAR FiscalYear = SELECTEDVALUE('Dim Calendar'[Year])
+			
+			VAR FiscalQuarter = SELECTEDVALUE('Dim Calendar'[Quarter])
+			
+			VAR ShippingPlant = SELECTEDVALUE('Bridge Shipping Plant'[City])
+			
+			VAR ResultQuartelyTarget =
+			    IF(
+			        TargetMode = "Manual",
+			        CALCULATE(
+			            MAX('Dim KPIs'[Target]),
+			            FILTER(
+			                'Dim KPIs',
+			                'Dim KPIs'[Year Quarter] = FiscalYearQuarter &&
+			                'Dim KPIs'[Shipping Plant] = ShippingPlant &&
+			                'Dim KPIs'[Unit] = Unit
+			            )
+			        ),
+			        CALCULATE(
+			            MAX('Dim KPIs based on Last Year'[Target]),
+			            FILTER(
+			                'Dim KPIs based on Last Year',
+			                'Dim KPIs based on Last Year'[Year] = FiscalYear - 1 &&
+			                'Dim KPIs based on Last Year'[Quarter] = FiscalQuarter &&
+			                'Dim KPIs based on Last Year'[Shipping Plant] = ShippingPlant &&
+			                'Dim KPIs based on Last Year'[Unit] = Unit
+			            )
+			        )
+			    )
+			
+			VAR ResultYearlyTarget =
+			        IF(
+			            TargetMode = "Manual",
+			            CALCULATE(
+			                MAX('Dim KPIs'[Target]),
+			                FILTER(
+			                    'Dim KPIs',
+			                    'Dim KPIs'[Year] = FiscalYear &&
+			                    'Dim KPIs'[Shipping Plant] = ShippingPlant &&
+			                    'Dim KPIs'[Target Type] = "Yearly" &&
+			                    'Dim KPIs'[Unit] = Unit
+			                )
+			            ),
+			                        CALCULATE(
+			                MAX('Dim KPIs based on Last Year'[Target]),
+			                FILTER(
+			                    'Dim KPIs based on Last Year',
+			                    'Dim KPIs based on Last Year'[Year] = FiscalYear - 1 &&
+			                    'Dim KPIs based on Last Year'[Shipping Plant] = ShippingPlant &&
+			                    'Dim KPIs based on Last Year'[Target Type] = "Yearly" &&
+			                    'Dim KPIs based on Last Year'[Unit] = Unit
+			                )
+			            )
+			        )
+			
+			VAR IsYearFiltered = ISFILTERED('Dim Calendar'[Year])
+			VAR IsQuarterFiltered = ISFILTERED('Dim Calendar'[Quarter])
+			
+			VAR NumSelectedYears = DISTINCTCOUNT('Dim Calendar'[Year])
+			VAR NumSelectedQuarters = DISTINCTCOUNT('Dim Calendar'[Quarter])
+			
+			
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    TargetMode = "LY" && SELECTEDVALUE('Dim Calendar'[Year]) = CurrentFiscalYear, BLANK(),
+			
+			    // If more than one year is selected, return "N/A"
+			    NumSelectedYears > 1, "N/A",
+			
+			    // If both quarterly and yearly results are blank
+			    ISBLANK(ResultYearlyTarget) && ISBLANK(ResultQuartelyTarget), "N/A",
+			
+			    // If only the Year is filtered
+			    IsYearFiltered && NOT IsQuarterFiltered, ResultYearlyTarget,
+			
+			    // If only the Fiscal Quarter is filtered and only one quarter is selected
+			    IsQuarterFiltered && NumSelectedQuarters = 1, ResultQuartelyTarget,
+			
+			    // If more than one quarter or month is filtered, return the yearly target
+			    (IsQuarterFiltered && NumSelectedQuarters > 1), ResultYearlyTarget,
+			
+			    // If more than one year is selected, return "N/A"
+			    NumSelectedYears > 1, "N/A",
+			
+			    "No Data"
+			)
+			```
+		displayFolder: Transport Efficiency
+		lineageTag: f1bb885f-c07b-438d-a9f6-9286db93cc1d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AU Target % Simple Yearly' =
+			
+			
+			VAR Unit = SELECTEDVALUE('Fact Table'[KPI])
+			VAR CurrentFiscalYear = MAX('Dim Calendar'[Year])
+			VAR ShippingPlant = SELECTEDVALUE('Bridge Shipping Plant'[City])
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			VAR YearlyTarget =
+			    CALCULATE(
+			        MAX('Dim KPIs'[Target]),
+			        FILTER(
+			            'Dim KPIs',
+			            'Dim KPIs'[Year] = CurrentFiscalYear &&
+			            'Dim KPIs'[Shipping Plant] = ShippingPlant &&
+			            'Dim KPIs'[Target Type] = "Yearly" &&
+			            'Dim KPIs'[Unit] = Unit
+			        )
+			    )
+			
+			VAR IsShippingPlantFiltered = ISFILTERED('Bridge Shipping Plant'[City])
+			VAR NumSelectedPlants = DISTINCTCOUNT('Bridge Shipping Plant'[City])
+			
+			
+			
+			RETURN
+			    IF(
+			        TargetMode = "Manual" && IsShippingPlantFiltered && NumSelectedPlants = 1,
+			        YearlyTarget,
+			        "N/A"
+			    )
+		formatString: 0%;-0%;0%
+		displayFolder: Transport Efficiency
+		lineageTag: d47efc75-3663-4229-a884-835697bee55c
+
+	measure 'AU Color YTD Column' = ```
+			
+			 
+			VAR TargetTypeSelected = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			VAR IsShippingPlantFiltered = ISFILTERED('Bridge Shipping Plant'[City])
+			VAR NumSelectedPlants = DISTINCTCOUNT('Bridge Shipping Plant'[City])
+			
+			VAR ColorBasedOnPYTarget = 
+			    IF(
+			        [AU %] <= [AU % PY YTD column chart], 
+			        "#FF6B6B", //red
+			        "#7FB986" //green
+			    ) 
+			
+			VAR ColorBasedOnManualTarget = 
+			    IF(
+			        [AU %] <= [AU Target % Simple Yearly], 
+			        "#FF6B6B", //red
+			        "#7FB986" //green
+			    )
+			
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        TargetTypeSelected = "Manual" && IsShippingPlantFiltered && NumSelectedPlants = 1, ColorBasedOnManualTarget, /*user wants to see targets that have been set manually in the Sharepoint list*/
+			        TargetTypeSelected = "Manual" && ((IsShippingPlantFiltered && NumSelectedPlants > 1) || not IsShippingPlantFiltered), "#3774b1",
+			        TargetTypeSelected = "LY", ColorBasedOnPYTarget /* user wants to see targets that are prevous year's actuals but as targets to aspire to */
+			    )
+			```
+		displayFolder: Colors
+		lineageTag: 0d54dc7e-7f83-4cad-8f91-42d2873e9c80
+
+	measure 'AU % YTD column chart' =
+			
+			VAR CurrentFiscalYear =
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = TODAY())
+			    )
+			
+			VAR FiscalYearInContext = SELECTEDVALUE('Dim Calendar'[Year])
+			VAR FiscalMonthInContext = SELECTEDVALUE('Dim Calendar'[Month Number])
+			
+			VAR IsCurrentFiscalYear = FiscalYearInContext = CurrentFiscalYear
+			
+			VAR MaxFiscalMonth =
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = TODAY())
+			    )
+			
+			VAR IsInYTDRange = FiscalMonthInContext <= MaxFiscalMonth
+			
+			VAR CurrentMonthDates =
+			    CALCULATETABLE(
+			        VALUES('Dim Calendar'[Calendar Date]),
+			        'Dim Calendar'[Year] = CurrentFiscalYear,
+			        'Dim Calendar'[Month Number] = FiscalMonthInContext
+			    )
+			
+			VAR Result =
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX(
+			                'Fact Table',
+			                MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])
+			            ),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        TREATAS(CurrentMonthDates, 'Dim Calendar'[Calendar Date]),
+			        REMOVEFILTERS('Dim Calendar'[Calendar Date])
+			    )
+			
+			RETURN
+			    IF(
+			        IsCurrentFiscalYear && IsInYTDRange,
+			        Result
+			    )
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Transport Efficiency
+		lineageTag: 2b402add-90e4-4e34-9efd-bb97dc1e36da
+
+	measure 'AU % LM' = ```
+			
+			VAR SelectedKPI = SELECTEDVALUE('Fact Table'[KPI])
+			
+			VAR LatestDateInDataset = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Calendar Date]), 
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalYear = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR CurrentFiscalMonthNbr = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR PrevFiscalMonthNbr = 
+			    IF(CurrentFiscalMonthNbr = 1, 12, CurrentFiscalMonthNbr - 1)
+			
+			VAR PrevFiscalYear = 
+			    IF(CurrentFiscalMonthNbr = 1, CurrentFiscalYear - 1, CurrentFiscalYear)
+			
+			VAR PrevMonthDates = 
+			    CALCULATETABLE(
+			        VALUES('Dim Calendar'[Calendar Date]),
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbr,
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			VAR PrevFiscalMonthName = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Short Name]), 
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbr && 
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			VAR Result = 
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX('Fact Table', MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        TREATAS(PrevMonthDates, 'Dim Calendar'[Calendar Date])
+			    )
+			
+			
+			RETURN
+			    SWITCH(
+			        TRUE,
+			        SelectedKPI = "Pallets", Result,
+			        SelectedKPI = "Volume", Result,
+			        SelectedKPI = "Weight", Result,
+			        Result = BLANK(), "--",
+			       Result
+			    )
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: 883027bc-d903-4c64-b5a2-5e47f6efc077
+
+	measure 'AU % LM -1' = ```
+			
+			
+			//VAR Today = TODAY()
+			
+			VAR LatestDateInDataset = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Calendar Date]), 
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalYear = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR CurrentFiscalMonthNbr = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR PrevFiscalMonthNbr = 
+			    IF(CurrentFiscalMonthNbr = 1, 11, CurrentFiscalMonthNbr - 2)
+			
+			VAR PrevFiscalYear = 
+			    IF(CurrentFiscalMonthNbr = 1, CurrentFiscalYear -1, CurrentFiscalYear)
+			
+			VAR PrevFiscalMonthName = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Short Name]), 
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbr && 
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			VAR PrevMonthDates = 
+			    CALCULATETABLE(
+			        VALUES('Dim Calendar'[Calendar Date]),
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbr,
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			VAR Result = 
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX('Fact Table', MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        TREATAS(PrevMonthDates, 'Dim Calendar'[Calendar Date])
+			    )
+			
+			
+			RETURN
+			    SWITCH(
+			        TRUE,
+			        Result = BLANK(), "--",
+			        Result
+			    )
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Transport Efficiency
+		lineageTag: 135f5d6f-c6e5-4c96-ae98-27f09a07cc2a
+
+	measure 'AU Dynamic Header LM' = ```
+			
+			
+			VAR LatestDateInDataset = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Calendar Date]), 
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalYear = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR CurrentFiscalMonthNbr = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR PrevFiscalMonthNbr = 
+			    IF(CurrentFiscalMonthNbr = 1, 12, CurrentFiscalMonthNbr - 1)
+			
+			VAR PrevFiscalMonthNbrMinusOne = //For PrevFiscalMonthNbr of April this would be March
+			    PrevFiscalMonthNbr - 1
+			
+			VAR PrevFiscalYear = 
+			    IF(CurrentFiscalMonthNbr = 1, CurrentFiscalYear - 1, CurrentFiscalYear)
+			
+			VAR PrevFiscalMonthName = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Long Name]), 
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbr && 
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			VAR PrevFiscalMonthNameMinusOne = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Long Name]), 
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbrMinusOne && 
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			RETURN
+			    "Transport Efficiency for " & PrevFiscalMonthName & " vs " & PrevFiscalMonthNameMinusOne & " " & PrevFiscalYear & " in %"
+			```
+		displayFolder: Headers
+		lineageTag: 595fb331-3fb2-4e81-9525-4f28d0f2aee5
+
+	measure 'AU Dynamic Header YTD' = ```
+			
+			
+			VAR LatestDateInDataset = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Calendar Date]), 
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalYear = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR CurrentFiscalMonthNbr = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR CurrentFiscalMonthName = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Long Name]), 
+			        'Dim Calendar'[Month Number] = CurrentFiscalMonthNbr && 
+			        'Dim Calendar'[Year] = CurrentFiscalYear
+			    )
+			
+			RETURN
+			    "YTD Transport Efficiency in % for " & CurrentFiscalYear & ", vs Previous Year YTD"
+			```
+		displayFolder: Headers
+		lineageTag: 8858d913-d40e-4e2d-ab09-76ef666c8dbd
+
+	measure 'AU Color Lane Perf Column' = ```
+			
+			
+			VAR CurrentFiscalYear =
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]), 
+			        FILTER
+			            ('Dim Calendar', 'Dim Calendar'[Calendar Date] = [Latest Date in the Fact table])
+			    )
+			
+			VAR SelectedFiscalYear = MAX('Dim Calendar'[Year])
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			RETURN 
+			    SWITCH(
+			        TRUE(),
+			        TargetMode = "LY" && SelectedFiscalYear = CurrentFiscalYear, /* Applies colors only to a year that has a last year to it. SelectedFiscalYear returns maximum year among selected years and CurrentFiscalYear returns latest year in the data, regardless of filter context */
+			            IF(
+			                [AU % PY] = "N/A",
+			                "#d0d5db",//grey
+			                IF(
+			                    [AU %] >= [AU % PY],
+			                    "#7FB986", //green
+			                    "#FF6B6B" //red
+			                )
+			            ),
+			        TargetMode = "Manual" && [AU Target % Dynamic] <> "N/A", 
+			            IF(
+			                [AU %] >= [AU Target % Dynamic],
+			                "#7FB986", //green
+			                "#FF6B6B" //red
+			            ),
+			            "#3774b1" //blue
+			    )
+			```
+		displayFolder: Colors
+		lineageTag: e4354478-be21-44b4-b24b-3c50004d4046
+
+	measure 'AU Dynamic Header Lane Performance' = ```
+			
+			VAR ShownValuesLimit = 4
+			VAR SelectedUnit = SELECTEDVALUE('Fact Table'[Unit])
+			
+			VAR SelectedPlants = FILTERS('Bridge Shipping Plant'[Shipping Plant])
+			VAR SelectedPlantsCount = COUNTROWS(SelectedPlants)
+			VAR SelectedPlantsTopN = TOPN(ShownValuesLimit, SelectedPlants, 'Bridge Shipping Plant'[Shipping Plant])
+			VAR SelectedPlantsConcat = CONCATENATEX(SelectedPlantsTopN, 'Bridge Shipping Plant'[Shipping Plant], ", ")
+			VAR SelectedPlantsString = 
+			    IF(
+			        ISFILTERED('Bridge Shipping Plant'[Shipping Plant]),
+			        SelectedPlantsConcat & 
+			            SWITCH(
+			                TRUE(),
+			                SelectedPlantsCount - ShownValuesLimit = 1, ", and " & SelectedPlantsCount - ShownValuesLimit & " other plant" & " ",
+			                (SelectedPlantsCount - ShownValuesLimit) > 1, ", and " & SelectedPlantsCount - ShownValuesLimit & " other plants"
+			            ),
+			        "𝗮𝗹𝗹 𝗽𝗹𝗮𝗻𝘁𝘀"
+			    )
+			
+			VAR SelectedDestinations = FILTERS('Bridge Destination'[Destination Country Code])
+			VAR SelectedDestinationsCount = COUNTROWS(SelectedDestinations)
+			VAR SelectedDestinationsTopN = TOPN(ShownValuesLimit, SelectedDestinations, 'Bridge Destination'[Destination Country Code])
+			VAR SelectedDestinationsConcat = CONCATENATEX(SelectedDestinationsTopN, 'Bridge Destination'[Destination Country Code], ", ")
+			VAR SelectedDestinationsString = 
+			    IF(
+			        ISFILTERED('Bridge Destination'[Destination Country Code]),
+			        SelectedDestinationsConcat & 
+			            SWITCH(
+			                TRUE(),
+			                SelectedDestinationsCount - ShownValuesLimit = 1, ", and " & SelectedDestinationsCount - ShownValuesLimit & " other destination." & " ",
+			                (SelectedDestinationsCount - ShownValuesLimit) > 1, ", and " & SelectedDestinationsCount - ShownValuesLimit & " other destinations." & " "
+			            ),
+			        "𝗮𝗹𝗹 𝗱𝗲𝘀𝘁𝗶𝗻𝗮𝘁𝗶𝗼𝗻𝘀."
+			    )
+			RETURN "Asset Utilization % and volume in " & SelectedUnit & " from " & SelectedPlantsString & " to " & SelectedDestinationsString
+			```
+		displayFolder: Headers
+		lineageTag: cf38e5e2-7034-4813-8a51-6602dca69c22
+
+	measure 'AU % YTD per each month' = ```
+			
+			VAR SelectedKPI = SELECTEDVALUE('Fact Table'[KPI])
+			
+			VAR TodayDate = TODAY()
+			
+			
+			VAR CurrentFiscalYear =
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER('Dim Calendar', 'Dim Calendar'[Calendar Date] = TodayDate)
+			    )
+			
+			
+			VAR CurrentFiscalMonth =
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Short Name]),
+			        FILTER('Dim Calendar', 'Dim Calendar'[Calendar Date] = TodayDate)
+			    )
+			
+			
+			VAR FiscalYTDStartDate =
+			    CALCULATE(
+			        MIN('Dim Calendar'[Calendar Date]),
+			        'Dim Calendar'[Year] = CurrentFiscalYear,
+			        'Dim Calendar'[Month Number] = 1 
+			    )
+			
+			VAR FiscalYTDDates =
+			    FILTER(
+			        ALL('Dim Calendar'),
+			        'Dim Calendar'[Calendar Date] >= FiscalYTDStartDate &&
+			        'Dim Calendar'[Calendar Date] <= TodayDate
+			    )
+			
+			-- Calculate result using those dates
+			VAR Result =
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX(
+			                'Fact Table',
+			                MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])
+			            ),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        KEEPFILTERS(FiscalYTDDates)
+			    )
+			
+			RETURN
+			    SWITCH(
+			        TRUE,
+			        SelectedKPI = "Parcels", Result,
+			        SelectedKPI = "Volume", Result,
+			        SelectedKPI = "Weight", Result,
+			        Result
+			    )
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Transport Efficiency
+		lineageTag: 81e7eee1-401b-4818-ab74-4e5bf43b690d
+
+	measure 'AU % PY YTD card visual' = ```
+			
+			
+			VAR CurrentFiscalYear = 
+			    //MAX('Dim Calendar'[Year Nbr])
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalMonth = 
+			    //MAX('Dim Calendar'[Month Number])
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR ManualTarget = [AU Target % Simple Yearly]
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			VAR ResultBasedOnPY =
+			    CALCULATE(
+			        DIVIDE(
+			            SUMX(
+			                'Fact Table',
+			                MIN('Fact Table'[Actuals Value], 'Fact Table'[Target Value])
+			            ),
+			            SUM('Fact Table'[Target Value])
+			        ),
+			        FILTER(
+			            ALL('Dim Calendar'),
+			            'Dim Calendar'[Year] = CurrentFiscalYear - 1 &&
+			            'Dim Calendar'[Month Number] <= CurrentFiscalMonth
+			        )
+			    )
+			
+			RETURN
+			    IF(
+			        TargetMode = "LY",
+			        IF(
+			            ISBLANK(ResultBasedOnPY),
+			            "No Data",
+			            ResultBasedOnPY
+			        ),
+			        ManualTarget
+			    )
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Transport Efficiency
+		lineageTag: 26cb84ec-9043-41e6-8f0f-ecf3ab7d0e2c
+
+	measure 'Message Summary Page Target AU Filtered' =
+			
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			VAR SelectedShippingPlant = SELECTEDVALUE('Bridge Shipping Plant'[City])
+			VAR IsShippingPlantFiltered = ISFILTERED('Bridge Shipping Plant'[City])
+			VAR NumSelectedShippingPlants = DISTINCTCOUNT('Bridge Shipping Plant'[City])
+			
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        TargetMode = "LY", "Targets are based on 𝗟𝗮𝘀𝘁 𝗬𝗲𝗮𝗿's actuals.",
+			        TargetMode = "Manual" && IsShippingPlantFiltered = TRUE() && NumSelectedShippingPlants = 1, "Targets are set to 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀 and are shown for " & SelectedShippingPlant & ".",
+			        TargetMode = "Manual" && NumSelectedShippingPlants > 1, "❗Multiple Shipping Plants are filtered, please select only one plant to see targets.",
+			        ""
+			    )
+		displayFolder: Messages & Callout Values
+		lineageTag: b4b18e80-3143-4710-92a5-bacdc1f8aec7
+
+	measure Dummy = 0
+		formatString: 0%;-0%;0%
+		displayFolder: Other
+		lineageTag: 27e8bef5-bd5c-4087-887c-b1df3f83dbbe
+
+	measure 'ST Color YTD Column' = ```
+			
+			 
+			VAR TargetTypeSelected = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			VAR IsShippingPlantFiltered = ISFILTERED('Bridge Shipping Plant'[Shipping Plant])
+			VAR NumSelectedPlants = DISTINCTCOUNT('Bridge Shipping Plant'[Shipping Plant])
+			
+			VAR ColorBasedOnPYTarget = "#3774b1" //blue
+			    // SWITCH(
+			    //     TRUE(),
+			    //     [AU % YTD column chart] <= [AU % PY YTD column chart], "#FF6B6B", //red
+			    //     "#7FB986" //green
+			    // ) 
+			
+			VAR ColorBasedOnManualTarget = 
+			    SWITCH(
+			        TRUE(),
+			        [ST] >= [ST Target Simple Yearly], "#FF6B6B", //red
+			        "#7FB986" //green
+			    ) 
+			
+			RETURN
+			    IF(
+			        TargetTypeSelected = "Manual" && IsShippingPlantFiltered && NumSelectedPlants = 1, //user wants to see targets that have been set manually in the Sharepoint list
+			        ColorBasedOnManualTarget,
+			        ColorBasedOnPYTarget //user wants to see targets that are prevous year's actuals but as targets to aspire to
+			    )
+			```
+		displayFolder: Colors
+		lineageTag: ae262064-9ea8-42a0-b0a8-0226ca62752d
+
+	measure 'Dummy No Data' = "No Data"
+		displayFolder: Other
+		lineageTag: 6846cb6d-5639-4a8f-9a01-766493e71c18
+
+	measure 'Latest Date in the Fact table' = ```
+			
+			    CALCULATE(
+			        MAX('Dim Calendar'[Calendar Date]), 
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			```
+		formatString: General Date
+		displayFolder: Other
+		lineageTag: 3d3460d7-6471-457b-a551-ca7e77f17051
+
+	measure 'AU Color Lane Perf Column Data Label' = ```
+			
+			
+			VAR ColumnColor = [AU Color Lane Perf Column]
+			
+			RETURN 
+			    SWITCH(
+			        TRUE(),
+			        ColumnColor = "#d0d5db", "#000000", //if column is grey, text is black
+			        ColumnColor = "#7FB986", "#1d541a", //if column is green, text is dark green
+			        ColumnColor = "#FF6B6B", "#8c1616", //if column ir red, text is dark red
+			        "#3774b1" //if column is blue text is the same blue because irt is dark enough
+			    )
+			```
+		displayFolder: Colors
+		lineageTag: 3a7cc256-a2bf-4a11-8fd6-47ccb6b9b258
+
+	measure 'Message Target AU Filtered Column Chart' = ```
+			
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			
+			VAR ResultQuartelyTarget = 
+			    IF(
+			        TargetMode = "Last Year Actuals",
+			        "Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗟𝗮𝘀𝘁 𝗬𝗲𝗮𝗿 performance.",
+			        "Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀."
+			    )
+			
+			VAR ResultYearlyTarget = 
+			    IF(
+			        TargetMode = "Last Year Actuals",
+			        "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗟𝗮𝘀𝘁 𝗬𝗲𝗮𝗿 performance.",
+			        "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀."
+			    )
+			
+			VAR IsYearFiltered = ISFILTERED('Dim Calendar'[Year])
+			VAR IsQuarterFiltered = ISFILTERED('Dim Calendar'[Quarter])
+			VAR IsMonthFiltered = ISFILTERED('Dim Calendar'[Month Short Name])
+			VAR IsWeekFiltered = ISFILTERED('Dim Calendar'[Week Number])
+			VAR IsShippingPlantFiltered = ISFILTERED('Bridge Shipping Plant'[City])
+			
+			VAR NumSelectedYears = DISTINCTCOUNT('Dim Calendar'[Year])
+			VAR NumSelectedQuarters = DISTINCTCOUNT('Dim Calendar'[Quarter])
+			VAR NumSelectedMonths = DISTINCTCOUNT('Dim Calendar'[Month Short Name])
+			VAR NumSelectedWeeks = DISTINCTCOUNT('Dim Calendar'[Week Number])
+			VAR NumSelectedShippingPlants = DISTINCTCOUNT('Bridge Shipping Plant'[City])
+			
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    TargetMode = "LY", "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗟𝗮𝘀𝘁 𝗬𝗲𝗮𝗿 performance.",
+			    TargetMode = "Manual" && (NumSelectedShippingPlants > 1 || NOT IsShippingPlantFiltered), "",
+			    TargetMode = "Manual" && IsYearFiltered && NOT IsQuarterFiltered && NOT IsMonthFiltered && NOT IsWeekFiltered, "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀.", 
+			    TargetMode = "Manual" && IsQuarterFiltered && NumSelectedQuarters = 1 && NOT IsMonthFiltered, "Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀.",
+			    TargetMode = "Manual" && IsMonthFiltered && NumSelectedMonths = 1, "Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀.",
+			    TargetMode = "Manual" && IsWeekFiltered &&
+			        (
+			            (NumSelectedWeeks > 0) && 
+			            (NumSelectedMonths <= 1 && NumSelectedQuarters <= 1) || 
+			            (NumSelectedMonths > 1 && NumSelectedQuarters = 1) 
+			        ),"Targets are set to 𝗤𝘂𝗮𝗿𝘁𝗲𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀.",
+			    TargetMode = "Manual" && (IsQuarterFiltered && NumSelectedQuarters > 1) || (IsMonthFiltered && NumSelectedMonths > 1), "Targets are set to 𝗬𝗲𝗮𝗿𝗹𝘆 and based on 𝗠𝗮𝗻𝘂𝗮𝗹𝗹𝘆 𝘀𝗲𝘁 𝗧𝗮𝗿𝗴𝗲𝘁𝘀."
+			)
+			```
+		displayFolder: Messages & Callout Values
+		lineageTag: cd12a487-1bfc-4b40-b4ab-0f66c1eeb057
+
+	measure 'ST Dynamic Header Lane Performance' = ```
+			
+			VAR ShownValuesLimit = 4
+			VAR SelectedUnit = SELECTEDVALUE('Fact Table'[Unit])
+			
+			VAR SelectedPlants = FILTERS('Bridge Shipping Plant'[Shipping Plant])
+			VAR SelectedPlantsCount = COUNTROWS(SelectedPlants)
+			VAR SelectedPlantsTopN = TOPN(ShownValuesLimit, SelectedPlants, 'Bridge Shipping Plant'[Shipping Plant])
+			VAR SelectedPlantsConcat = CONCATENATEX(SelectedPlantsTopN, 'Bridge Shipping Plant'[Shipping Plant], ", ")
+			VAR SelectedPlantsString = 
+			    IF(
+			        ISFILTERED('Bridge Shipping Plant'[Shipping Plant]),
+			        SelectedPlantsConcat & 
+			            SWITCH(
+			                TRUE(),
+			                SelectedPlantsCount - ShownValuesLimit = 1, ", and " & SelectedPlantsCount - ShownValuesLimit & " other plant" & " ",
+			                (SelectedPlantsCount - ShownValuesLimit) > 1, ", and " & SelectedPlantsCount - ShownValuesLimit & " other plants"
+			            ),
+			        "𝗮𝗹𝗹 𝗽𝗹𝗮𝗻𝘁𝘀"
+			    )
+			
+			VAR SelectedDestinations = FILTERS('Bridge Destination'[Destination Country Code])
+			VAR SelectedDestinationsCount = COUNTROWS(SelectedDestinations)
+			VAR SelectedDestinationsTopN = TOPN(ShownValuesLimit, SelectedDestinations, 'Bridge Destination'[Destination Country Code])
+			VAR SelectedDestinationsConcat = CONCATENATEX(SelectedDestinationsTopN, 'Bridge Destination'[Destination Country Code], ", ")
+			VAR SelectedDestinationsString = 
+			    IF(
+			        ISFILTERED('Bridge Destination'[Destination Country Code]),
+			        SelectedDestinationsConcat & 
+			            SWITCH(
+			                TRUE(),
+			                SelectedDestinationsCount - ShownValuesLimit = 1, ", and " & SelectedDestinationsCount - ShownValuesLimit & " other destination." & " ",
+			                (SelectedDestinationsCount - ShownValuesLimit) > 1, ", and " & SelectedDestinationsCount - ShownValuesLimit & " other destinations." & " "
+			            ),
+			        "𝗮𝗹𝗹 𝗱𝗲𝘀𝘁𝗶𝗻𝗮𝘁𝗶𝗼𝗻𝘀."
+			    )
+			RETURN 
+			    "Staging Time and volume in " & SelectedUnit & " from " & SelectedPlantsString & " to " & SelectedDestinationsString
+			```
+		displayFolder: Headers
+		lineageTag: 28201505-1fd4-4fd9-bdad-fd697246a245
+
+	measure 'Callout AU % Δ  CY - PY YTD card visual' = ```
+			
+			VAR Result = 
+			    IF(
+			        [AU % PY YTD card visual] = "No Data" || [AU % PY YTD card visual] = "N/A", 
+			        BLANK(),
+			        [AU % YTD per each month] - [AU % PY YTD card visual]
+			    )
+			RETURN
+			    IF(
+			        ISBLANK(Result), 
+			        "N/A",
+			        Result
+			    )
+			```
+		displayFolder: Messages & Callout Values
+		lineageTag: fb6b0814-1edc-49dd-b50d-8611f8378139
+
+		formatStringDefinition = IF([Callout AU % Δ  CY - PY YTD card visual] >= 0, "+ 0.#0 %", " 0.#0 %")
+
+	measure 'Message AU YTD card visual custom message' = ```
+			
+			VAR CurrentFiscalYear = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]), 
+			        FILTER(
+			            'Dim Calendar', 
+			            'Dim Calendar'[Calendar Date] = [Latest Date in the Fact table]
+			        )
+			    )
+			
+			VAR TargetMode = SELECTEDVALUE('Tagret Type Parameter'[Target Type Code])
+			VAR OutputString = "vs " & FORMAT([AU % PY YTD card visual], "0.0 %") & " YTD in " & CurrentFiscalYear - 1
+			RETURN 
+			    SWITCH(
+			        TRUE(),
+			        TargetMode = "LY" && [AU % PY YTD card visual] <> "No Data", OutputString,
+			        IF(
+			            [AU % PY YTD card visual] = "N/A", 
+			            "No Target",
+			            IF(
+			                ISBLANK([AU % YTD per each month]),
+			                "",
+			                "vs Manual Target " & FORMAT([AU Target % Simple Yearly], "0 %")
+			            )
+			        )
+			    )
+			```
+		displayFolder: Messages & Callout Values
+		lineageTag: ea80a316-30bb-44fd-b757-172e6d7a849c
+
+	measure 'AU Color YTD Card Visual' = ```
+			
+			
+			VAR Result = 
+			    IF(
+			        [AU % PY YTD card visual] = "N/A" || ISBLANK([AU % YTD per each month]),
+			        BLANK(),
+			        IF(
+			            [AU % YTD per each month] - [AU % PY YTD card visual] <= 0,
+			            "#d90d0d", //green
+			            "#258a46" //red
+			        )
+			    )
+			RETURN
+			    Result
+			```
+		displayFolder: Colors
+		lineageTag: bf0d774c-2bff-4145-831a-d9fd52c6a1b9
+
+	measure 'Callout AU % Δ LM - LM-1 card visual' = ```
+			
+			
+			
+			VAR Result = 
+			    IF(
+			        [AU % LM] = "--" || [AU % LM -1] = "--",
+			        "N/A",
+			        [AU % LM] - [AU % LM -1]
+			    )
+			
+			RETURN
+			    IF(
+			        ISBLANK(Result), 
+			        "N/A",
+			        Result
+			    )
+			```
+		displayFolder: Messages & Callout Values
+		lineageTag: 201c35ce-a956-4a11-a1d8-a99967491566
+
+		formatStringDefinition = IF([Callout AU % Δ LM - LM-1 card visual] >= 0, "+ 0.#0 %", " 0.#0 %")
+
+	measure 'Message AU LM card visual custom message' = ```
+			
+			VAR LatestDateInDataset = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Calendar Date]), 
+			        'Dim Calendar'[Calendar Date] = MAX('Fact Table'[Loading Date])
+			    )
+			
+			VAR CurrentFiscalYear = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Year]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR CurrentFiscalMonthNbr = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Number]),
+			        FILTER(ALL('Dim Calendar'), 'Dim Calendar'[Calendar Date] = LatestDateInDataset)
+			    )
+			
+			VAR PrevFiscalMonthNbr = 
+			    IF(CurrentFiscalMonthNbr = 1, 12, CurrentFiscalMonthNbr - 1)
+			
+			VAR PrevFiscalMonthNbrMinusOne = /*For PrevFiscalMonthNbr of April this would equal to March*/
+			    PrevFiscalMonthNbr - 1
+			
+			VAR PrevFiscalYear = 
+			    IF(CurrentFiscalMonthNbr = 1, CurrentFiscalYear - 1, CurrentFiscalYear)
+			
+			VAR PrevFiscalMonthName = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Long Name]), 
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbr && 
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			VAR PrevFiscalMonthNameMinusOne = 
+			    CALCULATE(
+			        MAX('Dim Calendar'[Month Long Name]), 
+			        'Dim Calendar'[Month Number] = PrevFiscalMonthNbrMinusOne && 
+			        'Dim Calendar'[Year] = PrevFiscalYear
+			    )
+			
+			RETURN 
+			    SWITCH(
+			        TRUE(),
+			        [AU % LM -1] = "--", "", /* For the case when value is not available */
+			        "vs " & FORMAT([AU % LM -1], "0.0 %") & " in " & PrevFiscalMonthNameMinusOne
+			    )
+			```
+		displayFolder: Messages & Callout Values
+		lineageTag: dd820d97-69df-4a25-bd94-3c06a8d9e07e
+
+	measure 'AU Color LM Card Visual' = ```
+			
+			  
+			VAR Result = 
+			    IF(
+			        [AU % LM] = "--" || [AU % LM -1] = "--",
+			        BLANK(),
+			        IF(
+			            [AU % LM] - [AU % LM -1] <= 0,
+			            "#d90d0d", //green
+			            "#258a46" //red
+			        )
+			    )
+			RETURN
+			    Result
+			```
+		displayFolder: Colors
+		lineageTag: 3998ad74-9fce-4bab-bab4-efe7a4bd69cc
+
+	measure 'AU Color YTD Column Data Label' = ```
+			
+			
+			VAR ColumnColor = [AU Color YTD Column]
+			
+			RETURN 
+			    SWITCH(
+			        TRUE(),
+			        ColumnColor = "#d0d5db", "#000000", //if column is grey, text is black
+			        ColumnColor = "#7FB986", "#1d541a", //if column is green, text is dark green
+			        ColumnColor = "#FF6B6B", "#8c1616", //if column ir red, text is dark red
+			        "#3774b1" //if column is blue text is the same blue because it is dark enough
+			    )
+			```
+		displayFolder: Colors
+		lineageTag: eedf1ede-774f-442f-9524-7c5b72a0ba53
+
+	measure 'ST Color Lane Perf Table' = ```
+			
+			
+			VAR Result = 
+			    SWITCH(
+			        TRUE(),
+			        [ST CY vs Target] = "N/A", "#666666", //dark grey
+			        [ST CY vs Target] >= 0, "#d90d0d", //green
+			        [ST CY vs Target] < 0, "#258a46" //red
+			    )
+			
+			RETURN
+			    Result
+			```
+		displayFolder: Colors
+		lineageTag: 71015919-0e9c-4b20-8347-c5dce2a5f44b
+
+	measure Comment = ```
+			
+			    CALCULATE(
+			        MAX('Fact Comments'[comment]),
+			        'Fact Comments'[city] = SELECTEDVALUE('Fact Table'[City]) &&
+			        'Fact Comments'[kpi] = SELECTEDVALUE('Fact Table'[KPI]) &&
+			        'Fact Comments'[yearmonth] = SELECTEDVALUE('Dim Calendar'[Year Month Key])
+			    )
+			```
+		lineageTag: e76d3526-3152-4cdd-87c5-7799deb37907
+
+	measure 'Comment Card' =
+			
+			VAR Output =
+			    CALCULATE(
+			        MAX('Fact Comments'[comment]),
+			        'Fact Comments'[city] = SELECTEDVALUE('Fact Table'[City]) &&
+			        'Fact Comments'[kpi] = SELECTEDVALUE('Fact Table'[KPI]) &&
+			        'Fact Comments'[yearmonth] = SELECTEDVALUE('Dim Calendar'[Year Month Key])
+			    )
+			
+			RETURN
+			    IF(
+			        ISBLANK(Output),
+			        "No comment selected",
+			        Output
+			    )
+		lineageTag: bf56c527-ea18-4744-ad98-86544f468688
+
+	measure 'Comment Selected Year Month Card' = ```
+			
+			    CONCATENATE(
+			        SELECTEDVALUE('Dim Calendar'[Month Short Name]), 
+			        CONCATENATE(", ", SELECTEDVALUE('Dim Calendar'[Year]))
+			    )
+			```
+		lineageTag: a92047e2-e16c-4ee4-8fa4-c36a6ee05164
+
+	measure 'Comment Selected UUID' = ```
+			
+			    CALCULATE(
+			        MAX('Fact Comments'[uniqueID]),
+			        'Fact Comments'[city] = SELECTEDVALUE('Fact Table'[City]) &&
+			        'Fact Comments'[kpi] = SELECTEDVALUE('Fact Table'[KPI]) &&
+			        'Fact Comments'[yearmonth] = SELECTEDVALUE('Dim Calendar'[Year Month Key])
+			    )
+			```
+		lineageTag: 693ac935-3bad-452f-8790-74b931521596
+
+	measure 'Comment Selected KPI' = SELECTEDVALUE('Fact Table'[KPI])
+		lineageTag: fc0c9d15-5599-49fe-ab1d-25dfeee733c5
+
+	measure 'Comment Selected Year Month Key' = SELECTEDVALUE('Dim Calendar'[Year Month Key])
+		formatString: 0
+		lineageTag: fb8c6372-f73b-4808-b048-a42be78cf4f9
+
+	measure 'Comment Selected City' = ```
+			
+			    IF(
+			        ISBLANK(SELECTEDVALUE('Fact Table'[City])),
+			        "No city selected",
+			        SELECTEDVALUE('Fact Table'[City])
+			    )
+			```
+		lineageTag: 28172e1f-33c9-4b30-b9de-70a4da96faaa
+
+	column Value
+		isHidden
+		formatString: 0
+		lineageTag: 400d93d9-df82-4a01-9c81-748ff00f04ca
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Calculations = calculated
+		mode: import
+		source = Row("Value", BLANK())
+
+	annotation PBI_Id = df6038f5df314e1a961aaa6f98ba1eea
+
+	annotation 436ba87b-9c83-4389-a31b-ebd06a36be98 = {"Expression":""}
+

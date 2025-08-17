@@ -1,0 +1,156 @@
+table 'Dim Calendar'
+	lineageTag: 930629b4-aa09-47e9-9d4c-bd9a2ae7776b
+	dataCategory: Time
+
+	column 'MMM yyyy Week' = 'Dim Calendar'[Month Short Name] & " " & 'Dim Calendar'[Year] & " week " & 'Dim Calendar'[Week Number]
+		lineageTag: 8bd8e2a2-8258-45e5-8e99-3154a9ae58a1
+		summarizeBy: none
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Month Letter' = LEFT('Dim Calendar'[Month Short Name],1) & REPT(UNICHAR(8203), 'Dim Calendar'[Month Number])
+		lineageTag: 204b6e99-fdff-4b0f-8bb2-b10139dc4005
+		summarizeBy: none
+		sortByColumn: 'Month Number'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Current Year Flag' = ```
+			
+			    IF(
+			        'Dim Calendar'[Year] = MAX('Dim Calendar'[Year]),
+			        TRUE,
+			        FALSE
+			    )
+			```
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c3b79031-32df-4773-a0ee-1ba21af54630
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Before Latest Date within Data? Flag' = ```
+			
+			    IF(
+			        'Dim Calendar'[Calendar Date] <= MAX('Fact Table'[Loading Date]),
+			        TRUE,
+			        FALSE
+			    )
+			```
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 012269aa-5292-4070-b35e-74e786b89ed1
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Calendar Date'
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: a0babed2-bd46-4a17-aaae-8c55e5ea2646
+		summarizeBy: none
+		sourceColumn: Calendar Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Year Month Key'
+		dataType: int64
+		formatString: 0
+		lineageTag: ee284592-07d2-4519-9eaa-dfbfbded1719
+		summarizeBy: none
+		sourceColumn: Year Month Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Short Name'
+		dataType: string
+		lineageTag: b5d9c093-27d4-4020-9e4d-f82ce4ff0d9d
+		summarizeBy: none
+		sourceColumn: Month Short Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: 02a99baf-c84c-4d68-9dda-84d32396ad5b
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: e153c860-c903-46f1-8718-28ddc086cb0a
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0aa63daf-13f7-4e96-ad59-be13f91f2bc3
+		summarizeBy: sum
+		sourceColumn: Month Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Long Name'
+		dataType: string
+		lineageTag: d98b008b-b58e-4194-92ad-8d8dc2d3a67d
+		summarizeBy: none
+		sourceColumn: Month Long Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 51b34234-49cd-4fe4-ac19-10f0fbe65f02
+		summarizeBy: sum
+		sourceColumn: Week Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year + Month' = CONCATENATE('Dim Calendar'[Month Short Name], CONCATENATE(" ", 'Dim Calendar'[Year]))
+		lineageTag: 0a181bbf-9b1d-4162-a6e9-b6d7e08d6f1d
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Fiscal Year Hierarchy'
+		lineageTag: e557f81c-3856-4f02-a125-928dd052e2e1
+
+		level Year
+			lineageTag: 884c504c-eb73-496a-a215-a82a4e7f7d02
+			column: Year
+
+		level Month
+			lineageTag: 8d01bbe7-bbed-4c41-a3dc-6982781e574a
+			column: 'Fiscal Month Letter'
+
+	partition 'Dim Calendar' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://github.com/zakharlukash/projects/raw/main/DimCalendar.csv"),[Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Calendar Date", type date}, {"Fiscal Year Month Number", Int64.Type}, {"Fiscal Year", Int64.Type}, {"Fiscal Month", Int64.Type}, {"Fiscal Week Number", Int64.Type}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"MMM yyyy Week", "Year Quarter", "Fiscal Month Letter", "Is Current Year Flag", "Is Before Latest Date within Data? Flag", "Year + Month"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"Fiscal Year Month Number", "Year Month Key"}, {"Fiscal Month Short Name", "Month Short Name"}, {"Fiscal Quarter", "Quarter"}, {"Fiscal Year", "Year"}, {"Fiscal Month", "Month Number"}, {"Fiscal Month Long Name", "Month Long Name"}, {"Fiscal Week Number", "Week Number"}})
+				in
+				    #"Renamed Columns"
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
